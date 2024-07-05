@@ -13,43 +13,63 @@ function signUp() {
   const [showError, setShowError] = useState(false);
   const [errorno, setErrorNo] = useState("");
   const [msgcolor, setmsgcolor] = useState("1");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [cnic, setCnic] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState('');
+
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
     const credentials = {
-      username: username,
-      password: password,
-      email: email,
-      phone: phone,
-      cnic: Cnic,
-      dateOfBirth: DateofBirth,
-      gender: Gender,
+      username,
+      password,
+      email,
+      phone,
+      cnic,
+      dateOfBirth,
+      gender,
     };
 
-    let existingCredentials = JSON.parse(
-      localStorage.getItem("signupCredentials")
-    );
+    console.log(credentials);
+
+    let existingCredentials = JSON.parse(localStorage.getItem("signupCredentials"));
     if (!Array.isArray(existingCredentials)) {
       existingCredentials = [];
     }
     existingCredentials.push(credentials);
-    localStorage.setItem(
-      "signupCredentials",
-      JSON.stringify(existingCredentials)
-    );
+    localStorage.setItem("signupCredentials", JSON.stringify(existingCredentials));
+
+    setUsername('');
+    setPassword('');
+    setEmail('');
+    setPhone('');
+    setCnic('');
+    setDateOfBirth('');
+    setGender('');
+
+    alert("User registered successfully");
   };
 
+
+
   const handleCnicCheck = (e) => {
+
+    setCnic(e.target.value);
+    const newcnic = e.target.value;
     setErrorNo(4);
-    let cnic = e.target.value;
-    if (cnic.length === 0) {
+    if (newcnic.length === 0) {
       setErrorMessage("CNIC cannot be empty.");
       setShowError(true);
       return false;
     } else {
       setShowError(false);
     }
-    if (cnic.length !== 15) {
+    if (newcnic.length !== 15) {
       setShowError(true);
       setErrorMessage("CNIC must be 15 digits long.");
       return false;
@@ -60,12 +80,13 @@ function signUp() {
 
   const handleUsernameCheck = (e) => {
     setErrorNo(1);
-    const username = e.target.value.trim();
-    if (username.length === 0) {
+    setUsername( e.target.value.trim());
+    const newUsername = e.target.value.trim();
+    if (newUsername.length === 0) {
       setErrorMessage("Username cannot be empty.");
       setShowError(true);
       return;
-    } else if (!isNaN(username)) {
+    } else if (!isNaN(newUsername)) {
       setErrorMessage(
         "Username must include alphabets and cannot be only numbers."
       );
@@ -78,19 +99,23 @@ function signUp() {
 
   const handlePasswordCheck = (e) => {
     setErrorNo(2);
-    const password = e.target.value;
-    if (password.length === 0) {
+    setmsgcolor(1);
+    setPassword(e.target.value);
+    const newpassword = e.target.value;
+    if (newpassword.length === 0) {
       setShowError(true);
       setErrorMessage("Password can't be empty.");
       return false;
+    } else {
+      setShowError(false);
     }
-    if (password.length <= 8) {
+    if (newpassword.length <= 8) {
       console.log("Password is weak");
       setShowError(true);
       setmsgcolor(1);
       setErrorMessage("Password is weak");
       return false;
-    } else if (password.length > 8 && password.length <= 12) {
+    } else if (newpassword.length > 8 && newpassword.length <= 12) {
       setShowError(true);
       setmsgcolor(2);
       setErrorMessage("Password is moderate");
@@ -103,17 +128,18 @@ function signUp() {
 
   const handlePhoneCheck = (e) => {
     setErrorNo(3);
-
-    let phoneNumber = e.target.value;
+    setPhone(e.target.value);
+    const newphone = e.target.value;
+    
     let phoneRegex = /^\+923\d{9}$/;
-    if (phoneNumber.length === 0) {
+    if (newphone.length === 0) {
       setShowError(true);
       setErrorMessage("Phone number cannot be empty.");
       return false;
     } else {
       setShowError(false);
     }
-    if (!phoneRegex.test(phoneNumber)) {
+    if (!phoneRegex.test(newphone)) {
       setShowError(true);
       setErrorMessage("Phone number must be in the format +923xxxxxxxxx");
       return false;
@@ -141,7 +167,11 @@ function signUp() {
             </p>
             <button
               className="rounded-full border-2 border-white px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setShowError(false); // Clear any existing error messages
+                setErrorMessage(""); // Optionally clear the error message
+              }}
             >
               {isSignUp ? "Sign In" : "Sign Up"}
             </button>
@@ -194,6 +224,7 @@ function signUp() {
             <div className="custom-input-field">
               <FontAwesomeIcon icon={faEnvelope} className="ml-2" />
               <input
+              onChange={(e)=>{setEmail(e.target.value)}}
                 placeholder="Email"
                 type="email"
                 id="Email"
@@ -274,7 +305,7 @@ function signUp() {
                 >
                   Date of Birth:
                 </label>
-                <input type="date" id="Date" name="Date" required />
+                <input onChange={(e)=>{setDateOfBirth(e.target.value)}} type="date" id="Date" name="Date" required />
                 <br />
               </div>
             ) : null}
@@ -291,6 +322,7 @@ function signUp() {
                   id="Gender"
                   className="w-4/5 p-2 rounded border border-gray-300 text-base"
                   name="Gender"
+                  onChange={(e) => setGender(e.target.value)}
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
