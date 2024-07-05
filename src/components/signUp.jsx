@@ -9,7 +9,7 @@ import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 function signUp({ onChangeUser }) {
-  const [isSignUp, setIsSignUp] = useState(""); // Assuming you have a state to toggle sign up
+  const [isSignUp, setIsSignUp] = useState(""); 
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
   const [errorno, setErrorNo] = useState("");
