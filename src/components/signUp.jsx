@@ -6,8 +6,8 @@ import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
-
-function signUp() {
+import { useNavigate } from 'react-router-dom';
+function signUp({ onChangeUser }) {
   const [isSignUp, setIsSignUp] = useState("true"); // Assuming you have a state to toggle sign up
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
@@ -19,8 +19,8 @@ function signUp() {
   const [phone, setPhone] = useState('');
   const [cnic, setCnic] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState('');
-
+  const [gender, setGender] = useState('Male');
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -55,7 +55,10 @@ function signUp() {
     alert("User registered successfully");
   };
 
-
+  const handleGenderChange = (event) => {
+    setGender(event.target.value);
+    console.log(event.target.value); // Log the selected gender
+  };
 
   const handleCnicCheck = (e) => {
 
@@ -148,6 +151,25 @@ function signUp() {
     }
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+   
+    const credentialsArray = JSON.parse(localStorage.getItem("signupCredentials")) || [];
+    const credentialMatch = credentialsArray.find(cred => cred.email.toLowerCase() === email.toLowerCase() && cred.password === password);
+  
+    if (credentialMatch) {
+      onChangeUser(true);
+      console.log("Login Successful");
+      navigate('/Dashboard');
+    } else {
+      setShowError(true);
+      setErrorMessage("Invalid email or password");
+    }
+  
+    setEmail('');
+    setPassword('');
+  }
+
   return (
     <>
       <div className=" flex justify-center items-center bg-no-repeat bg-cover h-screen w-full bg-black">
@@ -169,8 +191,8 @@ function signUp() {
               className="rounded-full border-2 border-white px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
               onClick={() => {
                 setIsSignUp(!isSignUp);
-                setShowError(false); // Clear any existing error messages
-                setErrorMessage(""); // Optionally clear the error message
+                setShowError(false); 
+                setErrorMessage(""); 
               }}
             >
               {isSignUp ? "Sign In" : "Sign Up"}
@@ -200,13 +222,14 @@ function signUp() {
                 ? "w-full h-full flex flex-col justify-center items-center"
                 : "w-full h-[50%] flex flex-col justify-center items-center "
             }
-            onSubmit={handleSubmit}
+            onSubmit={isSignUp ? handleSubmit : handleLogin}
           >
             {isSignUp ? (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faUser} className="ml-2" />
                 <input
                   onChange={handleUsernameCheck}
+                  value={username}
                   placeholder="Username"
                   type="text"
                   id="Username"
@@ -226,6 +249,7 @@ function signUp() {
               <input
               onChange={(e)=>{setEmail(e.target.value)}}
                 placeholder="Email"
+                value={email}
                 type="email"
                 id="Email"
                 name="Email"
@@ -236,7 +260,8 @@ function signUp() {
             <div className="custom-input-field">
               <FontAwesomeIcon icon={faKey} className="ml-2" />
               <input
-                onChange={handlePasswordCheck}
+                onChange={isSignUp ? handlePasswordCheck : (e) => setPassword(e.target.value)}
+                value={password}
                 placeholder="Password"
                 type="password"
                 id="Password"
@@ -264,6 +289,7 @@ function signUp() {
                 <FontAwesomeIcon icon={faPhone} className="ml-2" />
                 <input
                   onChange={handlePhoneCheck}
+                  value={phone}
                   placeholder="Phone No"
                   type="tel"
                   id="Phone"
@@ -283,6 +309,7 @@ function signUp() {
                 <FontAwesomeIcon icon={faIdCard} className="ml-2" />
                 <input
                   onChange={handleCnicCheck}
+                  value={cnic}
                   placeholder="CNIC"
                   type="number"
                   id="Cnic"
@@ -305,7 +332,7 @@ function signUp() {
                 >
                   Date of Birth:
                 </label>
-                <input onChange={(e)=>{setDateOfBirth(e.target.value)}} type="date" id="Date" name="Date" required />
+                <input onChange={(e)=>{setDateOfBirth(e.target.value)}} value={dateOfBirth} type="date" id="Date" name="Date" required />
                 <br />
               </div>
             ) : null}
@@ -322,7 +349,8 @@ function signUp() {
                   id="Gender"
                   className="w-4/5 p-2 rounded border border-gray-300 text-base"
                   name="Gender"
-                  onChange={(e) => setGender(e.target.value)}
+                  value={gender}
+                  onChange={handleGenderChange}
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
