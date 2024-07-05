@@ -6,21 +6,23 @@ import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 function signUp({ onChangeUser }) {
-  const [isSignUp, setIsSignUp] = useState("true"); // Assuming you have a state to toggle sign up
+  const [isSignUp, setIsSignUp] = useState(""); // Assuming you have a state to toggle sign up
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
   const [errorno, setErrorNo] = useState("");
   const [msgcolor, setmsgcolor] = useState("1");
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [cnic, setCnic] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState('Male');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [cnic, setCnic] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("Male");
   const navigate = useNavigate();
+  const [isReset , setIsReset] = useState(true);
+  const [isChangePassword , setIsChangePassword] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -37,20 +39,25 @@ function signUp({ onChangeUser }) {
 
     console.log(credentials);
 
-    let existingCredentials = JSON.parse(localStorage.getItem("signupCredentials"));
+    let existingCredentials = JSON.parse(
+      localStorage.getItem("signupCredentials")
+    );
     if (!Array.isArray(existingCredentials)) {
       existingCredentials = [];
     }
     existingCredentials.push(credentials);
-    localStorage.setItem("signupCredentials", JSON.stringify(existingCredentials));
+    localStorage.setItem(
+      "signupCredentials",
+      JSON.stringify(existingCredentials)
+    );
 
-    setUsername('');
-    setPassword('');
-    setEmail('');
-    setPhone('');
-    setCnic('');
-    setDateOfBirth('');
-    setGender('');
+    setUsername("");
+    setPassword("");
+    setEmail("");
+    setPhone("");
+    setCnic("");
+    setDateOfBirth("");
+    setGender("");
 
     alert("User registered successfully");
   };
@@ -61,7 +68,6 @@ function signUp({ onChangeUser }) {
   };
 
   const handleCnicCheck = (e) => {
-
     setCnic(e.target.value);
     const newcnic = e.target.value;
     setErrorNo(4);
@@ -83,7 +89,7 @@ function signUp({ onChangeUser }) {
 
   const handleUsernameCheck = (e) => {
     setErrorNo(1);
-    setUsername( e.target.value.trim());
+    setUsername(e.target.value.trim());
     const newUsername = e.target.value.trim();
     if (newUsername.length === 0) {
       setErrorMessage("Username cannot be empty.");
@@ -133,7 +139,7 @@ function signUp({ onChangeUser }) {
     setErrorNo(3);
     setPhone(e.target.value);
     const newphone = e.target.value;
-    
+
     let phoneRegex = /^\+923\d{9}$/;
     if (newphone.length === 0) {
       setShowError(true);
@@ -153,22 +159,28 @@ function signUp({ onChangeUser }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-   
-    const credentialsArray = JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    const credentialMatch = credentialsArray.find(cred => cred.email.toLowerCase() === email.toLowerCase() && cred.password === password);
-  
+
+    const credentialsArray =
+      JSON.parse(localStorage.getItem("signupCredentials")) || [];
+    const credentialMatch = credentialsArray.find(
+      (cred) =>
+        cred.email.toLowerCase() === email.toLowerCase() &&
+        cred.password === password
+    );
+
     if (credentialMatch) {
       onChangeUser(true);
       console.log("Login Successful");
-      navigate('/Dashboard');
+      navigate("/Dashboard");
     } else {
       setShowError(true);
+      setErrorNo(5);
       setErrorMessage("Invalid email or password");
     }
-  
-    setEmail('');
-    setPassword('');
-  }
+
+    setEmail("");
+    setPassword("");
+  };
 
   return (
     <>
@@ -191,11 +203,11 @@ function signUp({ onChangeUser }) {
               className="rounded-full border-2 border-white px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
               onClick={() => {
                 setIsSignUp(!isSignUp);
-                setShowError(false); 
-                setErrorMessage(""); 
+                setShowError(false);
+                setErrorMessage("");
               }}
             >
-              {isSignUp ? "Sign In" : "Sign Up"}
+              {isSignUp  ? "Sign In" : "Sign Up"}
             </button>
           </div>
         </div>
@@ -214,7 +226,8 @@ function signUp({ onChangeUser }) {
                 : "font-extrabold text-[#01bf95] text-3xl font-roboto mt-[20%]"
             }
           >
-            {isSignUp ? "Create New Account" : "Login To Explore"}
+            {isReset ? "Reset Password" : (isSignUp ? "Create New Account" : "Login To Explore")}
+            
           </h1>
           <form
             className={
@@ -247,7 +260,9 @@ function signUp({ onChangeUser }) {
             <div className="custom-input-field">
               <FontAwesomeIcon icon={faEnvelope} className="ml-2" />
               <input
-              onChange={(e)=>{setEmail(e.target.value)}}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
                 placeholder="Email"
                 value={email}
                 type="email"
@@ -260,7 +275,11 @@ function signUp({ onChangeUser }) {
             <div className="custom-input-field">
               <FontAwesomeIcon icon={faKey} className="ml-2" />
               <input
-                onChange={isSignUp ? handlePasswordCheck : (e) => setPassword(e.target.value)}
+                onChange={
+                  isSignUp
+                    ? handlePasswordCheck
+                    : (e) => setPassword(e.target.value)
+                }
                 value={password}
                 placeholder="Password"
                 type="password"
@@ -332,7 +351,16 @@ function signUp({ onChangeUser }) {
                 >
                   Date of Birth:
                 </label>
-                <input onChange={(e)=>{setDateOfBirth(e.target.value)}} value={dateOfBirth} type="date" id="Date" name="Date" required />
+                <input
+                  onChange={(e) => {
+                    setDateOfBirth(e.target.value);
+                  }}
+                  value={dateOfBirth}
+                  type="date"
+                  id="Date"
+                  name="Date"
+                  required
+                />
                 <br />
               </div>
             ) : null}
@@ -357,6 +385,12 @@ function signUp({ onChangeUser }) {
                 </select>
               </div>
             ) : null}
+
+            <div className="flex justify-center items-center w-full">
+              <p className="text-red-500 text-xs text-center pl-[2px] w-[70%]">
+                {showError && errorno === 5 && errorMessage}
+              </p>
+            </div>
             <button
               className={
                 isSignUp
@@ -367,6 +401,17 @@ function signUp({ onChangeUser }) {
             >
               {isSignUp ? "Sign Up" : "Sign In"}
             </button>
+            {/* Forget Password Link */}
+            {!isSignUp && (
+              <div className="flex justify-center items-center w-full mt-2">
+                <a
+                  href="/reset-password"
+                  className="text-xs text-[#01bf95] hover:underline"
+                >
+                  Forgot Password?
+                </a>
+              </div>
+            )}
           </form>
         </div>
       </div>
