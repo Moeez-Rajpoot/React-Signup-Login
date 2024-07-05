@@ -19,6 +19,7 @@ function Users() {
                 <p>Username: {user.username}</p>
                 <p>Phone: {user.phone}</p> 
                 <p>CNIC: {user.cnic}</p>
+                <p>Passwords: {user.password}</p>
                 <p>Date of Birth: {user.dateOfBirth}</p>
                 <p>Gender: {user.gender}</p>
               </div>

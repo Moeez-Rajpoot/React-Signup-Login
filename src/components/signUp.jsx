@@ -21,8 +21,9 @@ function signUp({ onChangeUser }) {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("Male");
   const navigate = useNavigate();
-  const [isReset , setIsReset] = useState(true);
-  const [isChangePassword , setIsChangePassword] = useState(false);
+  const [isReset, setIsReset] = useState(false);
+  const [isChangePassword, setIsChangePassword] = useState(false);
+  const [reTypePassword, setretypePassword] = useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -182,6 +183,80 @@ function signUp({ onChangeUser }) {
     setPassword("");
   };
 
+  const handleReset = (e) => {
+    e.preventDefault();
+    const credentialsArray =
+      JSON.parse(localStorage.getItem("signupCredentials")) || [];
+    const credentialMatch = credentialsArray.find(
+      (cred) =>
+        cred.username === username &&
+        cred.email.toLowerCase() === email.toLowerCase() &&
+        cred.phone === phone &&
+        cred.cnic === cnic &&
+        cred.dateOfBirth === dateOfBirth &&
+        cred.gender === gender
+    );
+
+    if (credentialMatch) {
+      setIsChangePassword(true);
+      console.log("All credentials matched. Proceed to password change.");
+      setIsSignUp(false);
+      setErrorMessage("");
+      setShowError(false);
+      localStorage.setItem("resetUsername", username);
+    } else {
+      setShowError(true);
+      setErrorNo(5);
+      setErrorMessage("No matching credentials found.");
+    }
+  };
+
+  const handleretypePasswordCheck = (e) => {
+    setretypePassword(e.target.value);
+    if (password === e.target.value) {
+      setShowError(false);
+    } else {
+      setShowError(true);
+      setErrorNo(5);
+      setErrorMessage("Passwords do not match.");
+      return false;
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    e.preventDefault();
+    const credentialsArray =
+      JSON.parse(localStorage.getItem("signupCredentials")) || [];
+    const credentialMatch = credentialsArray.find(
+      (cred) => cred.username === localStorage.getItem("resetUsername")
+    );
+    if (password === reTypePassword) {
+      credentialMatch.password = password;
+      localStorage.setItem(
+        "signupCredentials",
+        JSON.stringify(credentialsArray)
+      );
+      setIsReset(false);
+      setIsChangePassword(false);
+      setUsername("");
+      setPassword("");
+      setEmail("");
+      setPhone("");
+      setCnic("");
+      setDateOfBirth("");
+      setGender("");
+      setretypePassword("");
+      setShowError(false);
+      setErrorMessage("");
+      alert("Password changed successfully.");
+      navigate("/");
+    } else {
+      setShowError(true);
+      setErrorNo(5);
+      setErrorMessage("Passwords do not match.");
+    }
+  };
+
   return (
     <>
       <div className=" flex justify-center items-center bg-no-repeat bg-cover h-screen w-full bg-black">
@@ -203,11 +278,13 @@ function signUp({ onChangeUser }) {
               className="rounded-full border-2 border-white px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
               onClick={() => {
                 setIsSignUp(!isSignUp);
+                setIsReset(false);
+                setIsChangePassword(false);
                 setShowError(false);
                 setErrorMessage("");
               }}
             >
-              {isSignUp  ? "Sign In" : "Sign Up"}
+              {isSignUp ? "Sign In" : "Sign Up"}
             </button>
           </div>
         </div>
@@ -226,8 +303,11 @@ function signUp({ onChangeUser }) {
                 : "font-extrabold text-[#01bf95] text-3xl font-roboto mt-[20%]"
             }
           >
-            {isReset ? "Reset Password" : (isSignUp ? "Create New Account" : "Login To Explore")}
-            
+            {isReset
+              ? "Reset Password"
+              : isSignUp
+              ? "Create New Account"
+              : "Login To Explore"}
           </h1>
           <form
             className={
@@ -235,7 +315,15 @@ function signUp({ onChangeUser }) {
                 ? "w-full h-full flex flex-col justify-center items-center"
                 : "w-full h-[50%] flex flex-col justify-center items-center "
             }
-            onSubmit={isSignUp ? handleSubmit : handleLogin}
+            onSubmit={
+              isChangePassword
+                ? handlePasswordChange
+                : isReset
+                ? handleReset
+                : isSignUp
+                ? handleSubmit
+                : handleLogin
+            }
           >
             {isSignUp ? (
               <div className="custom-input-field">
@@ -257,37 +345,68 @@ function signUp({ onChangeUser }) {
               </p>
             )}
 
-            <div className="custom-input-field">
-              <FontAwesomeIcon icon={faEnvelope} className="ml-2" />
-              <input
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                placeholder="Email"
-                value={email}
-                type="email"
-                id="Email"
-                name="Email"
-                required
-              />
-            </div>
+            {!isChangePassword && (
+              <div className="custom-input-field">
+                <FontAwesomeIcon icon={faEnvelope} className="ml-2" />
+                <input
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  value={email}
+                  type="email"
+                  id="Email"
+                  name="Email"
+                  required
+                />
+              </div>
+            )}
+            {!isReset && (
+              <div className="custom-input-field">
+                <FontAwesomeIcon icon={faKey} className="ml-2" />
+                <input
+                  onChange={(e) => isSignUp ? handlePasswordCheck(e) : setPassword(e.target.value)}
+                  value={password}
+                  placeholder="Password"
+                  type="password"
+                  id="Password"
+                  name="Password"
+                  required
+                />
+              </div>
+            )}
 
-            <div className="custom-input-field">
-              <FontAwesomeIcon icon={faKey} className="ml-2" />
-              <input
-                onChange={
-                  isSignUp
-                    ? handlePasswordCheck
-                    : (e) => setPassword(e.target.value)
-                }
-                value={password}
-                placeholder="Password"
-                type="password"
-                id="Password"
-                name="Password"
-                required
-              />
-            </div>
+            {isChangePassword && (
+              <div className="custom-input-field">
+                <FontAwesomeIcon icon={faKey} className="ml-2" />
+                <input
+                  onChange={(e) => isSignUp ? handlePasswordCheck(e) : setPassword(e.target.value)}
+                  value={password}
+                  placeholder="Password"
+                  type="password"
+                  id="RetypePassword"
+                  name="RetypePassword"
+                  required
+                />
+              </div>
+            )}
+
+            {isChangePassword && isReset && (
+              <div className="custom-input-field">
+                <FontAwesomeIcon icon={faKey} className="ml-2" />
+                <input
+                  onChange={
+                    isSignUp
+                      ? handleretypePasswordCheck
+                      : (e) => setretypePassword(e.target.value)
+                  }
+                  value={reTypePassword}
+                  placeholder="Retype Password"
+                  type="password"
+                  id="Retype Password"
+                  name="Password"
+                  required
+                />
+              </div>
+            )}
 
             {showError && errorno === 2 && (
               <p
@@ -399,14 +518,17 @@ function signUp({ onChangeUser }) {
               }
               type="submit"
             >
-              {isSignUp ? "Sign Up" : "Sign In"}
+              {isReset ? "Reset Password" : isSignUp ? "Sign Up" : "Sign In"}
             </button>
             {/* Forget Password Link */}
-            {!isSignUp && (
+            {!isSignUp && !isReset && (
               <div className="flex justify-center items-center w-full mt-2">
                 <a
-                  href="/reset-password"
-                  className="text-xs text-[#01bf95] hover:underline"
+                  onClick={() => {
+                    setIsSignUp(true);
+                    setIsReset(true);
+                  }}
+                  className="text-xs text-[#01bf95] hover:underline cursor-pointer"
                 >
                   Forgot Password?
                 </a>
