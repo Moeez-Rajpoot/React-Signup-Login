@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from "react";
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -65,7 +66,7 @@ function signUp({ onChangeUser }) {
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
-    console.log(event.target.value); // Log the selected gender
+    console.log(event.target.value); 
   };
 
   const handleCnicCheck = (e) => {
@@ -259,15 +260,15 @@ function signUp({ onChangeUser }) {
 
   return (
     <>
-      <div className=" flex justify-center items-center bg-no-repeat bg-cover h-screen w-full bg-black">
+      <div className="flex flex-col sm:flex-row justify-center items-center bg-no-repeat bg-cover h-screen w-full bg-black">
         <div
           className={
             isSignUp
-              ? "w-[25%] h-[90%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] rounded-tl-lg rounded-bl-lg"
-              : "w-[35%] h-[90%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] rounded-tl-lg rounded-bl-lg"
+              ? "w-full sm:w-[25%] h-[90%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] rounded-tl-lg rounded-bl-lg"
+              : "w-full sm:w-[35%] h-[90%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] rounded-tl-lg rounded-bl-lg"
           }
         >
-          <div className="flex flex-col justify-center items-center px-7 py-7">
+          <div className=" flex flex-col justify-center items-center px-7 py-7">
             <h1 className="text-3xl font-extrabold mb-4">Welcome Back !</h1>
             <p className="text-lg font-light text-center">
               {isSignUp
@@ -363,7 +364,11 @@ function signUp({ onChangeUser }) {
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faKey} className="ml-2" />
                 <input
-                  onChange={(e) => isSignUp ? handlePasswordCheck(e) : setPassword(e.target.value)}
+                  onChange={(e) =>
+                    isSignUp
+                      ? handlePasswordCheck(e)
+                      : setPassword(e.target.value)
+                  }
                   value={password}
                   placeholder="Password"
                   type="password"
@@ -378,7 +383,11 @@ function signUp({ onChangeUser }) {
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faKey} className="ml-2" />
                 <input
-                  onChange={(e) => isSignUp ? handlePasswordCheck(e) : setPassword(e.target.value)}
+                  onChange={(e) =>
+                    isSignUp
+                      ? handlePasswordCheck(e)
+                      : setPassword(e.target.value)
+                  }
                   value={password}
                   placeholder="Password"
                   type="password"
