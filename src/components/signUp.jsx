@@ -10,6 +10,7 @@ import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 function signUp({ onChangeUser }) {
+  const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(""); 
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
@@ -22,7 +23,6 @@ function signUp({ onChangeUser }) {
   const [cnic, setCnic] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("Male");
-  const navigate = useNavigate();
   const [isReset, setIsReset] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [reTypePassword, setretypePassword] = useState("");
