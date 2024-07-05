@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from './navbar';
 
 function Users() {
+  
   const usersData = JSON.parse(localStorage.getItem('signupCredentials') || '[]');
 
   return (

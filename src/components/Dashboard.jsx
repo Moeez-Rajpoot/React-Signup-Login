@@ -10,6 +10,10 @@ function Dashboard({OnLogOut}) {
     <div>
       <Navbar OnLogOut={OnLogOut} />
 
+      <div className="bg-black w-screen h-screen">
+
+        <p className='text-white font-roboto text-2xl'>Welcome Back!</p>
+      </div>
     </div>
   );
 }
