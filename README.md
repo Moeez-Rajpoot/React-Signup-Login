@@ -1,8 +1,35 @@
-# React + Vite
+# Login and Signup with Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
 
-Currently, two official plugins are available:
+This project includes several key features:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Sign Up**: Allows new users to create an account.
+- **Log In**: Enables existing users to log in.
+- **Forget Password**: Provides users the ability to recover their password.
+- **Change Password**: Allows users to change their password.
+- **Dashboard**: A personalized dashboard for users after they log in and can see all the registered users.
+
+## Screenshots
+
+Below are screenshots of the main features:
+
+### Sign Up
+
+![Sign Up](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/signup-image.png)
+
+### Log In
+
+![Log In](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/Login-image.png)
+
+### Forget Password
+
+![Forget Password](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/forget-image.png)
+
+### Change Password
+
+![Change Password]([path/to/change-password-image.png](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/change-image.png))
+
+### Dashboard
+
+![Dashboard]([path/to/dashboard-image.png](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/Dashboard.png))
