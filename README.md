@@ -28,8 +28,8 @@ Below are screenshots of the main features:
 
 ### Change Password
 
-![Change Password]([path/to/change-password-image.png](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/change-image.png))
+![Change Password](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/change-image.png)
 
 ### Dashboard
 
-![Dashboard]([path/to/dashboard-image.png](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/Dashboard.png))
+![Dashboard](https://github.com/Moeez-Rajpoot/React-Signup-Login/blob/main/src/assets/Dashboard.png)
