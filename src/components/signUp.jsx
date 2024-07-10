@@ -9,6 +9,9 @@ import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
+import { useUser } from '../Context/UserContext';
+
 function signUp({ onChangeUser }) {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(""); 
@@ -26,6 +29,8 @@ function signUp({ onChangeUser }) {
   const [isReset, setIsReset] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [reTypePassword, setretypePassword] = useState("");
+  const { setUserData } = useUser();
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -62,7 +67,14 @@ function signUp({ onChangeUser }) {
     setDateOfBirth("");
     setGender("");
 
-    alert("User registered successfully");
+       
+    enqueueSnackbar("User Registered Sucessfully", {
+      variant: "success",
+      anchorOrigin: {
+        vertical: "bottom",
+        horizontal: "right",
+      },
+    });
   };
 
   const handleGenderChange = (event) => {
@@ -172,9 +184,18 @@ function signUp({ onChangeUser }) {
     );
 
     if (credentialMatch) {
+      console.log("Credenitails  are " + JSON.stringify(credentialMatch));
+      setUserData(credentialMatch);
       onChangeUser(true);
-      console.log("Login Successful");
-      navigate("/Dashboard");
+
+      enqueueSnackbar("User Login Sucessfully", {
+        variant: "success",
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
+      navigate("/Users");
     } else {
       setShowError(true);
       setErrorNo(5);
@@ -250,7 +271,13 @@ function signUp({ onChangeUser }) {
       setretypePassword("");
       setShowError(false);
       setErrorMessage("");
-      alert("Password changed successfully.");
+      enqueueSnackbar("Password Changed Sucessfully", {
+        variant: "success",
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
       navigate("/");
     } else {
       setShowError(true);

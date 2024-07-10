@@ -1,18 +1,19 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Navbar from './navbar'; // Assuming Navbar is in the same directory
-import Courses from './Course'; // Assuming Courses.jsx is the component for courses
-import Users from './Users'; // Assuming Users.jsx is the component for users
+import Navbar from './navbar'; 
+import Courses from './Course'; 
+import Users from './Users'; 
+import { useUser } from '../Context/UserContext';
+function Dashboard() {
 
-function Dashboard({OnLogOut}) {
+  const { logout , setUserData } = useUser();
 
   return (
     <div>
-      <Navbar OnLogOut={OnLogOut} />
+      <Navbar OnLogOut={logout} />
 
       <div className="bg-black w-screen h-screen">
 
-        <p className='text-white font-roboto text-2xl'>Welcome Back!</p>
       </div>
     </div>
   );
