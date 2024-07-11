@@ -193,7 +193,7 @@ function signUp() {
       console.log("Credenitails  are " + JSON.stringify(credentialMatch));
       dispatch(setUserData(credentialMatch));
       // setUserData(credentialMatch);
-      // onChangeUser(true);
+      // onChangeUser(true);  //Use Context Api 
       dispatch(LoginState());
 
       enqueueSnackbar("User Login Sucessfully", {

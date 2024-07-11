@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 
 function App() {
   const user = useSelector((state) => state.Login.value);
-
+  
   useEffect(() => {
     console.log("User", user);
   }, [user]);
