@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useUser } from '../Context/UserContext';
+// import { useUser } from '../Context/UserContext';
+import { useSelector, useDispatch } from 'react-redux'
+import { setUserData } from '../Redux/Reducers/UserData';
 import { enqueueSnackbar } from "notistack";
 import Navbar from "./navbar";
 
 const Profile = () => {
-  const { userdata, setUserData } = useUser();
+  // const { userdata, setUserData } = useUser();
+  const dispatch = useDispatch()
+  const userdata = useSelector((state) => state.UserData.userData);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -45,8 +49,7 @@ const Profile = () => {
       credentialMatch.gender = updatedUser.gender;
       localStorage.setItem("signupCredentials", JSON.stringify(credentialsArray));
     }
-    setUserData(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    dispatch(setUserData(updatedUser));
     enqueueSnackbar("Profile updated successfully", { variant: "success" });
   };
 

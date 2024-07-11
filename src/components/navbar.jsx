@@ -3,15 +3,20 @@ import { NavLink } from "react-router-dom";
 import Logo from "../assets/LeafLogo.png";
 import UserImage from "../assets/user.jpg"; // Assuming you have a user image in your assets
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux'
+import { clearUserData } from '../Redux/Reducers/UserData'
+import { LogOutState } from '../Redux/Reducers/Loginstate'
 
-const Navbar = ({ OnLogOut ,setUserData }) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogOut = () => {
-    setUserData({});
-    OnLogOut();
+
+    dispatch(clearUserData());
+    dispatch(LogOutState());
     navigate("/");
   };
 
@@ -73,7 +78,6 @@ const Navbar = ({ OnLogOut ,setUserData }) => {
                   Profile
                 </NavLink>
                 <a
-                  href="/"
                   onClick={handleLogOut}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >

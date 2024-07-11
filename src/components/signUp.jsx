@@ -10,9 +10,14 @@ import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useUser } from '../Context/UserContext';
+import { useDispatch } from 'react-redux'
+import { setUserData } from '../Redux/Reducers/UserData';
+import { LoginState } from '../Redux/Reducers/Loginstate'
 
-function signUp({ onChangeUser }) {
+// import { useUser } from '../Context/UserContext';
+
+
+function signUp() {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(""); 
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,7 +34,8 @@ function signUp({ onChangeUser }) {
   const [isReset, setIsReset] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [reTypePassword, setretypePassword] = useState("");
-  const { setUserData } = useUser();
+  const dispatch = useDispatch();
+  // const { setUserData } = useUser();
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmit = (event) => {
@@ -185,8 +191,10 @@ function signUp({ onChangeUser }) {
 
     if (credentialMatch) {
       console.log("Credenitails  are " + JSON.stringify(credentialMatch));
-      setUserData(credentialMatch);
-      onChangeUser(true);
+      dispatch(setUserData(credentialMatch));
+      // setUserData(credentialMatch);
+      // onChangeUser(true);
+      dispatch(LoginState());
 
       enqueueSnackbar("User Login Sucessfully", {
         variant: "success",

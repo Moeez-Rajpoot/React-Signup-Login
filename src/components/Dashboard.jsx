@@ -3,14 +3,13 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './navbar'; 
 import Courses from './Course'; 
 import Users from './Users'; 
-import { useUser } from '../Context/UserContext';
-function Dashboard() {
+// import { useUser } from '../Context/UserContext';
 
-  const { logout , setUserData } = useUser();
+function Dashboard() {
 
   return (
     <div>
-      <Navbar OnLogOut={logout} />
+      <Navbar/>
 
       <div className="bg-black w-screen h-screen">
 
