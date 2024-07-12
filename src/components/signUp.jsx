@@ -366,10 +366,10 @@ function signUp() {
   }
 >
   <div className="h-full sm: flex flex-col justify-center items-center px-7 py-7">
-    <h1 className={isSignUp ? " mt-48 sm:mt-0 text-3xl font-extrabold mb-2" : "text-3xl font-extrabold mb-2"}>
+    <h1 className={isSignUp ? " mt-48 sm:mt-0 text-3xl font-extrabold mb-2 md:text-center " : "text-3xl font-extrabold mb-2 md:text-center"}>
       Welcome Back!
     </h1>
-    <p className="text-lg font-light text-center">
+    <p className="text-lg font-light text-center md:text-base lg:text-2xl">
       {isSignUp
         ? "We are happy to have you here. To keep connected with us please login with your personal info."
         : "If you are new and want to start a new journey, please register with us."}
@@ -403,8 +403,8 @@ function signUp() {
           <h1
             className={
               isSignUp
-                ? "mt-4 mb-5 font-extrabold text-[#01bf95] text-3xl font-roboto "
-                : "mt-0 mb-12 font-extrabold text-[#01bf95] text-3xl font-roboto"
+                ? "mt-4 mb-5 font-extrabold text-[#01bf95] text-3xl font-roboto md:text-center md:text-xl lg:text-3xl "
+                : "mt-0 mb-12 font-extrabold text-[#01bf95] text-3xl font-roboto md:text-center"
             }
           >
             {isReset
@@ -621,7 +621,7 @@ function signUp() {
               </p>
             </div>
             <button
-              className="rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer"
+              className="rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer md:mt-0 lg:mt-5"
               type="submit"
             >
               {isReset ? "Reset Password" : isSignUp ? "Sign Up" : "Sign In"}
