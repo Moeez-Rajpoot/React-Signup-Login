@@ -8,8 +8,8 @@ function Users() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto mt-10">
-        <h2 className="text-2xl font-semibold mb-5">All Users</h2>
+      <div className="container mx-auto mt-24 sm:mt-28">
+        <h2 className="flex justify-center text-2xl font-semibold mb-5">All Users</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {usersData.length > 0 ? (
             usersData.map((user, index) => (
