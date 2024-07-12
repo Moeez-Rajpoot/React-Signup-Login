@@ -39,7 +39,12 @@ function signUp() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
+  
+    // Validate all fields before proceeding
+    if (!validateFields()) {
+      return;
+    }
+  
     const credentials = {
       username,
       password,
@@ -49,21 +54,14 @@ function signUp() {
       dateOfBirth,
       gender,
     };
-
+  
     console.log(credentials);
-
-    let existingCredentials = JSON.parse(
-      localStorage.getItem("signupCredentials")
-    );
-    if (!Array.isArray(existingCredentials)) {
-      existingCredentials = [];
-    }
+  
+    let existingCredentials = JSON.parse(localStorage.getItem("signupCredentials")) || [];
     existingCredentials.push(credentials);
-    localStorage.setItem(
-      "signupCredentials",
-      JSON.stringify(existingCredentials)
-    );
-
+    localStorage.setItem("signupCredentials", JSON.stringify(existingCredentials));
+  
+    // Clear form fields after successful submission
     setUsername("");
     setPassword("");
     setEmail("");
@@ -72,15 +70,79 @@ function signUp() {
     setDateOfBirth("");
     setGender("");
 
-    enqueueSnackbar("User Registered Sucessfully", {
+    setErrorMessage("");
+    setShowError(false);
+    setErrorNo("");
+  
+    enqueueSnackbar("User Registered Successfully", {
       variant: "success",
       anchorOrigin: {
         vertical: "bottom",
         horizontal: "right",
       },
     });
+  
     setIsSignUp(!isSignUp);
   };
+  
+  const validateFields = () => {
+    let isValid = true;
+  
+    if (username.trim().length === 0) {
+      setErrorMessage("Username cannot be empty.");
+      setShowError(true);
+      setErrorNo(1);
+      isValid = false;
+    } else if (!isNaN(username.trim())) {
+      setErrorMessage("Username must include alphabets and cannot be only numbers.");
+      setShowError(true);
+      setErrorNo(1);
+      isValid = false;
+    }
+  
+    if (password.length === 0) {
+      setErrorMessage("Password can't be empty.");
+      setShowError(true);
+      setErrorNo(2);
+      isValid = false;
+    } else if (password.length <= 8) {
+      setErrorMessage("Password is weak");
+      setShowError(true);
+      setmsgcolor(1);
+      setErrorNo(2);
+      isValid = false;
+    }
+  
+    let phoneRegex = /^\+923\d{9}$/;
+    if (phone.length === 0) {
+      setErrorMessage("Phone number cannot be empty.");
+      setShowError(true);
+      setErrorNo(3);
+      isValid = false;
+    } else if (!phoneRegex.test(phone)) {
+      setErrorMessage("Phone number must be in the format +923xxxxxxxxx");
+      setShowError(true);
+      setErrorNo(3);
+      isValid = false;
+    }
+  
+    if (cnic.length === 0) {
+      setErrorMessage("CNIC cannot be empty.");
+      setShowError(true);
+      setErrorNo(4);
+      isValid = false;
+    } else if (cnic.length !== 15) {
+      setErrorMessage("CNIC must be 15 digits long.");
+      setShowError(true);
+      setErrorNo(4);
+      isValid = false;
+    }
+  
+    // Add more validations as needed
+  
+    return isValid;
+  };
+  
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
@@ -382,7 +444,7 @@ function signUp() {
               </div>
             )}
             {showError && errorno === 1 && (
-              <p className="text-red-500 text-xs text-left pl-2 mb-2 w-3/4">
+              <p className="text-red-500 text-xs text-left pl-0 sm:pl-5 mb-2 w-3/4">
                 {errorMessage}
               </p>
             )}
@@ -462,10 +524,10 @@ function signUp() {
               <p
                 className={
                   msgcolor === 1
-                    ? "text-red-500 text-xs text-left pl-2 mb-2 w-3/4"
+                    ? "text-red-500 text-xs text-left pl-0 sm:pl-2 mb-2 w-3/4"
                     : msgcolor === 2
-                    ? "text-orange-500 text-xs text-left pl-2 mb-2 w-3/4"
-                    : "text-green-500 text-xs text-left pl-2 mb-2 w-3/4"
+                    ? "text-orange-500 text-xs text-left pl-0 sm:pl-2 mb-2 w-3/4"
+                    : "text-green-500 text-xs text-left pl-0 sm:pl-2 mb-2 w-3/4"
                 }
               >
                 {errorMessage}
@@ -487,7 +549,7 @@ function signUp() {
               </div>
             )}
             {showError && errorno === 3 && (
-              <p className="text-red-500 text-xs text-left pl-2 mb-2 w-3/4">
+              <p className="text-red-500 text-xs text-left pl-0 sm:pl-2 mb-2 w-3/4">
                 {errorMessage}
               </p>
             )}
@@ -507,7 +569,7 @@ function signUp() {
               </div>
             )}
             {showError && errorno === 4 && (
-              <p className="text-red-500 text-xs text-left pl-2 mb-2 w-3/4">
+              <p className="text-red-500 text-xs text-left pl-0 sm:pl-2 mb-2 w-3/4">
                 {errorMessage}
               </p>
             )}
@@ -554,7 +616,7 @@ function signUp() {
             )}
 
             <div className="flex justify-center items-center w-full">
-              <p className="text-red-500 text-xs text-center pl-2 w-3/4">
+              <p className="text-red-500 text-xs text-center pl-0 sm:pl-2 w-3/4">
                 {showError && errorno === 5 && errorMessage}
               </p>
             </div>
