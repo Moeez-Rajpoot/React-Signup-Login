@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-// import { useUser } from '../Context/UserContext';
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 import { setUserData } from '../Redux/Reducers/UserData';
 import { enqueueSnackbar } from "notistack";
 import Navbar from "./navbar";
 
 const Profile = () => {
-  // const { userdata, setUserData } = useUser();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const userdata = useSelector((state) => state.UserData.userData);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,8 +25,46 @@ const Profile = () => {
     }
   }, [userdata]);
 
+  const validateFields = () => {
+    let isValid = true;
+
+    if (username.trim().length === 0) {
+      enqueueSnackbar("Username cannot be empty.", { variant: "error" });
+      isValid = false;
+    } else if (!isNaN(username.trim())) {
+      enqueueSnackbar("Username must include alphabets and cannot be only numbers.", { variant: "error" });
+      isValid = false;
+    }
+
+    let phoneRegex = /^\+923\d{9}$/;
+    if (phone.length === 0) {
+      enqueueSnackbar("Phone number cannot be empty.", { variant: "error" });
+      isValid = false;
+    } else if (!phoneRegex.test(phone)) {
+      enqueueSnackbar("Phone number must be in the format +923xxxxxxxxx", { variant: "error" });
+      isValid = false;
+    }
+
+    if (cnic.length === 0) {
+      enqueueSnackbar("CNIC cannot be empty.", { variant: "error" });
+      isValid = false;
+    } else if (cnic.length !== 15) {
+      enqueueSnackbar("CNIC must be 15 digits long.", { variant: "error" });
+      isValid = false;
+    }
+
+    // Add more validations as needed
+
+    return isValid;
+  };
+
   const handleUpdate = (e) => {
     e.preventDefault();
+
+    if (!validateFields()) {
+      return; // Prevent submission if fields are not valid
+    }
+
     const updatedUser = {
       username,
       email,
@@ -49,6 +85,7 @@ const Profile = () => {
       credentialMatch.gender = updatedUser.gender;
       localStorage.setItem("signupCredentials", JSON.stringify(credentialsArray));
     }
+
     dispatch(setUserData(updatedUser));
     enqueueSnackbar("Profile updated successfully", { variant: "success" });
   };
