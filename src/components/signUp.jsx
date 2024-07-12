@@ -10,16 +10,15 @@ import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faIdCard } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useDispatch } from 'react-redux'
-import { setUserData } from '../Redux/Reducers/UserData';
-import { LoginState } from '../Redux/Reducers/Loginstate'
+import { useDispatch } from "react-redux";
+import { setUserData } from "../Redux/Reducers/UserData";
+import { LoginState } from "../Redux/Reducers/Loginstate";
 
 // import { useUser } from '../Context/UserContext';
 
-
 function signUp() {
   const navigate = useNavigate();
-  const [isSignUp, setIsSignUp] = useState(""); 
+  const [isSignUp, setIsSignUp] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
   const [errorno, setErrorNo] = useState("");
@@ -73,7 +72,6 @@ function signUp() {
     setDateOfBirth("");
     setGender("");
 
-       
     enqueueSnackbar("User Registered Sucessfully", {
       variant: "success",
       anchorOrigin: {
@@ -81,11 +79,12 @@ function signUp() {
         horizontal: "right",
       },
     });
+    setIsSignUp(!isSignUp);
   };
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
-    console.log(event.target.value); 
+    console.log(event.target.value);
   };
 
   const handleCnicCheck = (e) => {
@@ -193,7 +192,7 @@ function signUp() {
       console.log("Credenitails  are " + JSON.stringify(credentialMatch));
       dispatch(setUserData(credentialMatch));
       // setUserData(credentialMatch);
-      // onChangeUser(true);  //Use Context Api 
+      // onChangeUser(true);  //Use Context Api
       dispatch(LoginState());
 
       enqueueSnackbar("User Login Sucessfully", {
@@ -297,47 +296,53 @@ function signUp() {
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-center items-center bg-no-repeat bg-cover h-screen w-full bg-black">
-        <div
-          className={
-            isSignUp
-              ? "w-full sm:w-[25%] h-[90%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] rounded-tl-lg rounded-bl-lg"
-              : "w-full sm:w-[35%] h-[90%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] rounded-tl-lg rounded-bl-lg"
-          }
-        >
-          <div className=" flex flex-col justify-center items-center px-7 py-7">
-            <h1 className="text-3xl font-extrabold mb-4">Welcome Back !</h1>
-            <p className="text-lg font-light text-center">
-              {isSignUp
-                ? "We are happy to have you here to keep connected with us please login with your personal info"
-                : "If you are new and wanted to start a new journey please register with us."}
-            </p>
-            <button
-              className="rounded-full border-2 border-white px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setIsReset(false);
-                setIsChangePassword(false);
-                setShowError(false);
-                setErrorMessage("");
-              }}
-            >
-              {isSignUp ? "Sign In" : "Sign Up"}
-            </button>
-          </div>
-        </div>
+      <div
+  className={
+    isSignUp
+      ? "w-full  rounded-tl-none rounded-bl-none sm:w-1/4 h-5/6 bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] sm:rounded-tl-lg sm:rounded-bl-lg"
+      : "w-full h-fit rounded-tl-none rounded-bl-none sm:w-1/3 sm:h-[83.33%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] sm:rounded-tl-lg sm:rounded-bl-lg"
+  }
+>
+  <div className="h-full sm: flex flex-col justify-center items-center px-7 py-7">
+    <h1 className={isSignUp ? " mt-48 sm:mt-0 text-3xl font-extrabold mb-2" : "text-3xl font-extrabold mb-2"}>
+      Welcome Back!
+    </h1>
+    <p className="text-lg font-light text-center">
+      {isSignUp
+        ? "We are happy to have you here. To keep connected with us please login with your personal info."
+        : "If you are new and want to start a new journey, please register with us."}
+    </p>
+    <button
+      className="rounded-full border-2 border-white px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
+      onClick={() => {
+        setUsername("");
+        setPassword("");
+        setIsSignUp(!isSignUp);
+        setIsReset(false);
+        setIsChangePassword(false);
+        setShowError(false);
+        setErrorMessage("");
+      }}
+    >
+      {isSignUp ? "Sign In" : "Sign Up"}
+    </button>
+  </div>
+</div>
 
-        <div
-          className={
-            isSignUp
-              ? "bg-white p-5 w-[45%] h-[90%] flex flex-col justify-center items-center border border-black border-opacity-20 m-0 rounded-tr-lg rounded-br-lg"
-              : "bg-white p-5 w-[35%] h-[90%] flex flex-col justify-center items-center border border-black border-opacity-20 m-0 rounded-tr-lg rounded-br-lg"
-          }
-        >
+
+<div
+  className={
+    isSignUp
+      ? "w-full h-fit rounded-tr-none rounded-br-none bg-white p-5 sm:w-2/5 sm:h-5/6 flex flex-col justify-center items-center border border-black border-opacity-20 m-0 sm:rounded-tr-lg sm:rounded-br-lg"
+      : "w-full rounded-tr-none rounded-br-none bg-white p-5 sm:w-1/3 h-5/6 flex flex-col justify-center items-center border border-black border-opacity-20 m-0 sm:rounded-tr-lg sm:rounded-br-lg"
+  }
+>
+
           <h1
             className={
               isSignUp
-                ? "font-extrabold text-[#01bf95] text-3xl font-roboto mt-8"
-                : "font-extrabold text-[#01bf95] text-3xl font-roboto mt-[20%]"
+                ? "mt-4 mb-5 font-extrabold text-[#01bf95] text-3xl font-roboto "
+                : "mt-0 mb-12 font-extrabold text-[#01bf95] text-3xl font-roboto"
             }
           >
             {isReset
@@ -350,7 +355,7 @@ function signUp() {
             className={
               isSignUp
                 ? "w-full h-full flex flex-col justify-center items-center"
-                : "w-full h-[50%] flex flex-col justify-center items-center "
+                : "w-full h-1/2 flex flex-col justify-center items-center"
             }
             onSubmit={
               isChangePassword
@@ -362,7 +367,7 @@ function signUp() {
                 : handleLogin
             }
           >
-            {isSignUp ? (
+            {isSignUp && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faUser} className="ml-2" />
                 <input
@@ -375,9 +380,9 @@ function signUp() {
                   required
                 />
               </div>
-            ) : null}
+            )}
             {showError && errorno === 1 && (
-              <p className="text-red-500 text-xs text-left pl-[2px] mb-2 w-[70%]">
+              <p className="text-red-500 text-xs text-left pl-2 mb-2 w-3/4">
                 {errorMessage}
               </p>
             )}
@@ -446,8 +451,8 @@ function signUp() {
                   value={reTypePassword}
                   placeholder="Retype Password"
                   type="password"
-                  id="Retype Password"
-                  name="Password"
+                  id="RetypePassword"
+                  name="RetypePassword"
                   required
                 />
               </div>
@@ -457,17 +462,17 @@ function signUp() {
               <p
                 className={
                   msgcolor === 1
-                    ? "text-red-500 text-xs text-left pl-[2px] mb-2 w-[70%]"
+                    ? "text-red-500 text-xs text-left pl-2 mb-2 w-3/4"
                     : msgcolor === 2
-                    ? "text-orange-500 text-xs text-left pl-[2px] mb-2 w-[70%]"
-                    : "text-green-500 text-xs text-left pl-[2px] mb-2 w-[70%]"
+                    ? "text-orange-500 text-xs text-left pl-2 mb-2 w-3/4"
+                    : "text-green-500 text-xs text-left pl-2 mb-2 w-3/4"
                 }
               >
                 {errorMessage}
               </p>
             )}
 
-            {isSignUp ? (
+            {isSignUp && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faPhone} className="ml-2" />
                 <input
@@ -480,14 +485,14 @@ function signUp() {
                   required
                 />
               </div>
-            ) : null}
+            )}
             {showError && errorno === 3 && (
-              <p className="text-red-500 text-xs text-left pl-[2px] mb-2 w-[70%]">
+              <p className="text-red-500 text-xs text-left pl-2 mb-2 w-3/4">
                 {errorMessage}
               </p>
             )}
 
-            {isSignUp ? (
+            {isSignUp && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faIdCard} className="ml-2" />
                 <input
@@ -500,14 +505,14 @@ function signUp() {
                   required
                 />
               </div>
-            ) : null}
+            )}
             {showError && errorno === 4 && (
-              <p className="text-red-500 text-xs text-left pl-[2px] mb-2 w-[70%]">
+              <p className="text-red-500 text-xs text-left pl-2 mb-2 w-3/4">
                 {errorMessage}
               </p>
             )}
 
-            {isSignUp ? (
+            {isSignUp && (
               <div className="custom-input-field">
                 <label
                   className="text-nowrap pl-2 font-semibold"
@@ -516,9 +521,7 @@ function signUp() {
                   Date of Birth:
                 </label>
                 <input
-                  onChange={(e) => {
-                    setDateOfBirth(e.target.value);
-                  }}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
                   value={dateOfBirth}
                   type="date"
                   id="Date"
@@ -527,10 +530,10 @@ function signUp() {
                 />
                 <br />
               </div>
-            ) : null}
+            )}
 
-            {isSignUp ? (
-              <div className="custom-input-field flex ml-1 gap-1 mt-3 mb-2.5 w-[70%] rounded-md font-sans">
+            {isSignUp && (
+              <div className="custom-input-field flex ml-1 gap-1 mt-3 mb-2.5 w-3/4 rounded-md font-sans">
                 <label
                   className="text-nowrap pl-2 font-semibold flex mb-2"
                   htmlFor="Gender"
@@ -548,24 +551,19 @@ function signUp() {
                   <option value="Female">Female</option>
                 </select>
               </div>
-            ) : null}
+            )}
 
             <div className="flex justify-center items-center w-full">
-              <p className="text-red-500 text-xs text-center pl-[2px] w-[70%]">
+              <p className="text-red-500 text-xs text-center pl-2 w-3/4">
                 {showError && errorno === 5 && errorMessage}
               </p>
             </div>
             <button
-              className={
-                isSignUp
-                  ? "rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer"
-                  : "rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-[50px] py-[12px] mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer"
-              }
+              className="rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer"
               type="submit"
             >
               {isReset ? "Reset Password" : isSignUp ? "Sign Up" : "Sign In"}
             </button>
-            {/* Forget Password Link */}
             {!isSignUp && !isReset && (
               <div className="flex justify-center items-center w-full mt-2">
                 <a

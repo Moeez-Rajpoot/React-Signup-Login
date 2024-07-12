@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  userData: {}, // Changed from value: '' to hold user data object
+  userData: JSON.parse(localStorage.getItem('userData')) || {}, 
 };
 
 export const UserSlice = createSlice({
@@ -11,12 +11,12 @@ export const UserSlice = createSlice({
     // New reducer to set user data
     setUserData: (state, action) => {
       state.userData = action.payload;
-      localStorage.setItem('userData', JSON.stringify(action.payload)); // Store in localStorage
+      localStorage.setItem('userData', JSON.stringify(action.payload));
       console.log('SetUserData : User data stored in Redux store:', action.payload);
     },
     clearUserData: (state) => {
       state.userData = {};
-      localStorage.removeItem('userData'); // Clear from localStorage
+      localStorage.removeItem('userData');
       console.log('ClearUserData : User data cleared from Redux store');
     },
   },

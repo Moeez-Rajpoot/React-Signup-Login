@@ -3,7 +3,7 @@
 @tailwind utilities;
 /* In your global CSS file */
 .custom-input-field {
-  @apply w-[70%] h-auto rounded-md flex items-center border-2 p-[4px] mb-[10px] bg-[#f5f5f5] border-[#f5f5f5] border-opacity-20;
+  @apply w-full sm:w-[70%] h-auto rounded-md flex items-center border-2 p-[4px] mb-[10px] bg-[#f5f5f5] border-[#f5f5f5] border-opacity-20;
 }
 
 .custom-input-field input {
