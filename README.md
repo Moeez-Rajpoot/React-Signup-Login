@@ -1,7 +1,7 @@
 # Login and Signup with Dashboard
 
 ## Live Link
-![Click me for Live Visit](https://react-signup-loginpage.vercel.app/)
+Check out the live site [here](https://react-signup-loginpage.vercel.app/).
 
 ## Features
 
