@@ -30,6 +30,8 @@ function signUp() {
   const [cnic, setCnic] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("Male");
+  const [image, setImage] = useState(null);
+  const [ipfsHash, setIpfsHash] = useState("");
   const [isReset, setIsReset] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [reTypePassword, setretypePassword] = useState("");
@@ -37,69 +39,137 @@ function signUp() {
   // const { setUserData } = useUser();
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleImageChange = async (e) => {
+    const image = e.target.files[0];
+    if (image) {
+      const formData = new FormData();
+      const blob = new Blob([image], { type: 'image/jpeg' });
+      formData.append('image', blob, image.name);
   
+      console.log("Image phase 1:", blob);
+  
+      try {
+        const response = await fetch('http://127.0.0.1:3000/api/user/uploadimage', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.message}`);
+        }
+  
+        const data = await response.json();
+        setIpfsHash("https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/"+data.ipfsHashes);
+        enqueueSnackbar("Image uploaded successfully", {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+      } catch (error) {
+        setShowError(true);
+        setErrorNo(20);
+        setErrorMessage('Failed to upload image to IPFS');
+      }
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     // Validate all fields before proceeding
     if (!validateFields()) {
       return;
     }
-  
-    const credentials = {
-      username,
-      password,
-      email,
-      phone,
-      cnic,
-      dateOfBirth,
-      gender,
-    };
-  
-    console.log(credentials);
-  
-    let existingCredentials = JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    existingCredentials.push(credentials);
-    localStorage.setItem("signupCredentials", JSON.stringify(existingCredentials));
-  
-    // Clear form fields after successful submission
-    setUsername("");
-    setPassword("");
-    setEmail("");
-    setPhone("");
-    setCnic("");
-    setDateOfBirth("");
-    setGender("");
 
-    setErrorMessage("");
-    setShowError(false);
-    setErrorNo("");
-  
-    enqueueSnackbar("User Registered Successfully", {
-      variant: "success",
-      anchorOrigin: {
-        vertical: "bottom",
-        horizontal: "right",
-      },
-    });
-  
-    setIsSignUp(!isSignUp);
+    const credentials = {
+      Username: username,
+      Password: password,
+      Email: email,
+      Phone: phone,
+      Cnic: cnic,
+      Dob: dateOfBirth,
+      Gender: gender,
+      IPFSUrl: ipfsHash,
+    };
+
+    console.log(credentials);
+
+    try {
+      const response = await fetch("http://127.0.0.1:3000/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Success:", data);
+
+      // Clear form fields after successful submission
+      setUsername("");
+      setPassword("");
+      setEmail("");
+      setPhone("");
+      setCnic("");
+      setDateOfBirth("");
+      setGender("");
+      setIpfsHash("");
+
+      setErrorMessage("");
+      setShowError(false);
+      setErrorNo("");
+
+      enqueueSnackbar("User Registered Successfully", {
+        variant: "success",
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
+
+      setIsSignUp(!isSignUp);
+    } catch (error) {
+      console.error("Error:", error);
+      enqueueSnackbar("Registration Failed", {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
+    }
+
+    // Commented out the local storage logic
+    // let existingCredentials = JSON.parse(localStorage.getItem("signupCredentials")) || [];
+    // existingCredentials.push(credentials);
+    // localStorage.setItem("signupCredentials", JSON.stringify(existingCredentials));
   };
-  
+
   const validateFields = () => {
     let isValid = true;
-  
+
     if (username.trim().length === 0) {
       setErrorMessage("Username cannot be empty.");
       setShowError(true);
       setErrorNo(1);
       isValid = false;
     } else if (!isNaN(username.trim())) {
-      setErrorMessage("Username must include alphabets and cannot be only numbers.");
+      setErrorMessage(
+        "Username must include alphabets and cannot be only numbers."
+      );
       setShowError(true);
       setErrorNo(1);
       isValid = false;
     }
-  
+
     if (password.length === 0) {
       setErrorMessage("Password can't be empty.");
       setShowError(true);
@@ -112,7 +182,7 @@ function signUp() {
       setErrorNo(2);
       isValid = false;
     }
-  
+
     let phoneRegex = /^\+923\d{9}$/;
     if (phone.length === 0) {
       setErrorMessage("Phone number cannot be empty.");
@@ -125,7 +195,7 @@ function signUp() {
       setErrorNo(3);
       isValid = false;
     }
-  
+
     if (cnic.length === 0) {
       setErrorMessage("CNIC cannot be empty.");
       setShowError(true);
@@ -137,12 +207,11 @@ function signUp() {
       setErrorNo(4);
       isValid = false;
     }
-  
+
     // Add more validations as needed
-  
+
     return isValid;
   };
-  
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
@@ -239,36 +308,93 @@ function signUp() {
     }
   };
 
-  const handleLogin = (e) => {
+  // const handleLogin = (e) => {
+  //   e.preventDefault();
+
+  //   const credentialsArray =
+  //     JSON.parse(localStorage.getItem("signupCredentials")) || [];
+  //   const credentialMatch = credentialsArray.find(
+  //     (cred) =>
+  //       cred.email.toLowerCase() === email.toLowerCase() &&
+  //       cred.password === password
+  //   );
+
+  //   if (credentialMatch) {
+  //     console.log("Credenitails  are " + JSON.stringify(credentialMatch));
+  //     dispatch(setUserData(credentialMatch));
+  //     // setUserData(credentialMatch);
+  //     // onChangeUser(true);  //Use Context Api
+  //     dispatch(LoginState());
+
+  //     enqueueSnackbar("User Login Sucessfully", {
+  //       variant: "success",
+  //       anchorOrigin: {
+  //         vertical: "bottom",
+  //         horizontal: "right",
+  //       },
+  //     });
+  //     navigate("/Users");
+  //   } else {
+  //     setShowError(true);
+  //     setErrorNo(5);
+  //     setErrorMessage("Invalid email or password");
+  //   }
+
+  //   setEmail("");
+  //   setPassword("");
+  // };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    const credentialsArray =
-      JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    const credentialMatch = credentialsArray.find(
-      (cred) =>
-        cred.email.toLowerCase() === email.toLowerCase() &&
-        cred.password === password
-    );
+    const credentials = {
+      Email: email,
+      Password: password,
+    };
 
-    if (credentialMatch) {
-      console.log("Credenitails  are " + JSON.stringify(credentialMatch));
-      dispatch(setUserData(credentialMatch));
-      // setUserData(credentialMatch);
-      // onChangeUser(true);  //Use Context Api
-      dispatch(LoginState());
-
-      enqueueSnackbar("User Login Sucessfully", {
-        variant: "success",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "right",
+    try {
+      const response = await fetch("http://127.0.0.1:3000/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(credentials),
       });
-      navigate("/Users");
-    } else {
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Success:", data);
+
+      if (data) {
+        console.log("Credentials are " + JSON.stringify(data));
+        dispatch(setUserData(data));
+        dispatch(LoginState());
+
+        // Store the access token in local storage or session storage
+        localStorage.setItem("accessToken", data.accessToken);
+
+        enqueueSnackbar("User Login Successfully", {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "right",
+          },
+        });
+        navigate("/Users");
+      } else {
+        setShowError(true);
+        setErrorNo(5);
+        setErrorMessage("Invalid email or password");
+      }
+    } catch (error) {
+      console.error("Error:", error);
       setShowError(true);
       setErrorNo(5);
-      setErrorMessage("Invalid email or password");
+      setErrorMessage(error.message || "Invalid email or password");
     }
 
     setEmail("");
@@ -358,48 +484,52 @@ function signUp() {
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-center items-center bg-no-repeat bg-cover h-screen w-full bg-black">
-      <div
-  className={
-    isSignUp
-      ? "w-full  rounded-tl-none rounded-bl-none sm:w-1/4 h-5/6 bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] sm:rounded-tl-lg sm:rounded-bl-lg"
-      : "w-full h-fit rounded-tl-none rounded-bl-none sm:w-1/3 sm:h-[83.33%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] sm:rounded-tl-lg sm:rounded-bl-lg"
-  }
->
-  <div className="h-full sm: flex flex-col justify-center items-center px-7 py-7">
-    <h1 className={isSignUp ? " mt-48 sm:mt-0 text-3xl font-extrabold mb-2 md:text-center " : "text-3xl font-extrabold mb-2 md:text-center"}>
-      Welcome Back!
-    </h1>
-    <p className="text-lg font-light text-center md:text-base lg:text-2xl">
-      {isSignUp
-        ? "We are happy to have you here. To keep connected with us please login with your personal info."
-        : "If you are new and want to start a new journey, please register with us."}
-    </p>
-    <button
-      className="rounded-full border-2 border-white px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
-      onClick={() => {
-        setUsername("");
-        setPassword("");
-        setIsSignUp(!isSignUp);
-        setIsReset(false);
-        setIsChangePassword(false);
-        setShowError(false);
-        setErrorMessage("");
-      }}
-    >
-      {isSignUp ? "Sign In" : "Sign Up"}
-    </button>
-  </div>
-</div>
+        <div
+          className={
+            isSignUp
+              ? "w-full  rounded-tl-none rounded-bl-none sm:w-1/4 sm:h-[87%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] sm:rounded-tl-lg sm:rounded-bl-lg"
+              : "w-full h-fit rounded-tl-none rounded-bl-none sm:w-1/3 sm:h-[83.33%] bg-no-repeat bg-cover flex justify-center items-center text-4xl text-white font-extrabold bg-[#01bf95] sm:rounded-tl-lg sm:rounded-bl-lg"
+          }
+        >
+          <div className="h-full sm: flex flex-col justify-center items-center px-7 py-7">
+            <h1
+              className={
+                isSignUp
+                  ? " mt-48 sm:mt-0 text-3xl font-extrabold mb-2 md:text-center "
+                  : "text-3xl font-extrabold mb-2 md:text-center"
+              }
+            >
+              Welcome Back!
+            </h1>
+            <p className="text-lg font-light text-center md:text-base lg:text-2xl">
+              {isSignUp
+                ? "We are happy to have you here. To keep connected with us please login with your personal info."
+                : "If you are new and want to start a new journey, please register with us."}
+            </p>
+            <button
+              className="rounded-full border-2 border-white px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-[#01bf95] transition duration-300 ease-in-out cursor-pointer"
+              onClick={() => {
+                setUsername("");
+                setPassword("");
+                setIsSignUp(!isSignUp);
+                setIsReset(false);
+                setIsChangePassword(false);
+                setShowError(false);
+                setErrorMessage("");
+              }}
+            >
+              {isSignUp ? "Sign In" : "Sign Up"}
+            </button>
+          </div>
+        </div>
 
-
-<div
-  className={
-    isSignUp
-      ? "w-full h-fit rounded-tr-none rounded-br-none bg-white p-5 sm:w-2/5 sm:h-5/6 flex flex-col justify-center items-center border border-black border-opacity-20 m-0 sm:rounded-tr-lg sm:rounded-br-lg"
-      : "w-full rounded-tr-none rounded-br-none bg-white p-5 sm:w-1/3 h-5/6 flex flex-col justify-center items-center border border-black border-opacity-20 m-0 sm:rounded-tr-lg sm:rounded-br-lg"
-  }
->
-
+        <div
+          className={
+            isSignUp
+              ? "w-full h-fit rounded-tr-none rounded-br-none bg-white p-5 sm:w-2/5 sm:h-[87%] flex flex-col justify-center items-center border border-black border-opacity-20 m-0 sm:rounded-tr-lg sm:rounded-br-lg"
+              : "w-full rounded-tr-none rounded-br-none bg-white p-5 sm:w-1/3 h-5/6 flex flex-col justify-center items-center border border-black border-opacity-20 m-0 sm:rounded-tr-lg sm:rounded-br-lg"
+          }
+        >
           <h1
             className={
               isSignUp
@@ -429,6 +559,13 @@ function signUp() {
                 : handleLogin
             }
           >
+          {isSignUp && !isReset && (
+            <div className="custom-input-field">
+            <FontAwesomeIcon icon={faIdCard} className="ml-2" />
+            <input type="file" onChange={handleImageChange} required />
+          </div>
+          )}
+     
             {isSignUp && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faUser} className="ml-2" />
@@ -615,13 +752,16 @@ function signUp() {
               </div>
             )}
 
+           
+            
+
             <div className="flex justify-center items-center w-full">
               <p className="text-red-500 text-xs text-center pl-0 sm:pl-2 w-3/4">
                 {showError && errorno === 5 && errorMessage}
               </p>
             </div>
             <button
-              className="rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 mt-5 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer md:mt-0 lg:mt-5"
+              className="rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer md:mt-0 lg:mt-2"
               type="submit"
             >
               {isReset ? "Reset Password" : isSignUp ? "Sign Up" : "Sign In"}

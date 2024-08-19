@@ -1,15 +1,16 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useEffect , useState } from 'react';
 import Navbar from './navbar'; 
-import Courses from './Course'; 
-import Users from './Users'; 
 // import { useUser } from '../Context/UserContext';
 
 function Dashboard() {
+  const [currentUser, setCurrentUser] = useState([]);
+  useEffect(() => {
+    setCurrentUser(JSON.parse(localStorage.getItem("Userdp")));
+  })
 
   return (
     <div>
-      <Navbar/>
+      <Navbar Profile={currentUser}/>
 
       <div className="bg-black w-screen h-screen">
 

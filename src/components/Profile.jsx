@@ -1,29 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from 'react-redux';
-import { setUserData } from '../Redux/Reducers/UserData';
+import { useSelector } from 'react-redux';
 import { enqueueSnackbar } from "notistack";
 import Navbar from "./navbar";
 
 const Profile = () => {
-  const dispatch = useDispatch();
-  const userdata = useSelector((state) => state.UserData.userData);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [Currentuserdata, setCurrentUserData] = useState(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [cnic, setCnic] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("Male");
+  const accesstoken = useSelector(
+    (state) => state.UserData.userData.accesstoken
+  );
 
   useEffect(() => {
-    if (userdata) {
-      setUsername(userdata.username || "");
-      setEmail(userdata.email || "");
-      setPhone(userdata.phone || "");
-      setCnic(userdata.cnic || "");
-      setDateOfBirth(userdata.dateOfBirth || "");
-      setGender(userdata.gender || "Male");
+    setCurrentUser(JSON.parse(localStorage.getItem("Userdp")));
+  }, []); 
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        console.log("accesstoken:", accesstoken);
+        const response = await fetch(
+          "http://127.0.0.1:3000/api/user/current",
+          {
+            headers: {
+              Authorization: `Bearer ${accesstoken}`,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("Current user  : ", data);
+        setCurrentUserData(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (accesstoken) {
+      getCurrentUser();
     }
-  }, [userdata]);
+  }, [accesstoken, currentUser]);
+
+  useEffect(() => {
+    if (Currentuserdata) {
+      setUsername(Currentuserdata.Username || "");
+      setEmail(Currentuserdata.Email || "");
+      setPhone(Currentuserdata.Phone || "");
+      setCnic(Currentuserdata.Cnic || "");
+      setDateOfBirth(Currentuserdata.Dob ? Currentuserdata.Dob.split("T")[0] : "");
+      setGender(Currentuserdata.Gender || "Male");
+    }
+  }, [Currentuserdata]);
 
   const validateFields = () => {
     let isValid = true;
@@ -36,7 +66,7 @@ const Profile = () => {
       isValid = false;
     }
 
-    let phoneRegex = /^\+923\d{9}$/;
+    let phoneRegex = /^\923\d{9}$/;
     if (phone.length === 0) {
       enqueueSnackbar("Phone number cannot be empty.", { variant: "error" });
       isValid = false;
@@ -48,7 +78,7 @@ const Profile = () => {
     if (cnic.length === 0) {
       enqueueSnackbar("CNIC cannot be empty.", { variant: "error" });
       isValid = false;
-    } else if (cnic.length !== 15) {
+    } else if (cnic.toString().length !== 15) {
       enqueueSnackbar("CNIC must be 15 digits long.", { variant: "error" });
       isValid = false;
     }
@@ -58,7 +88,7 @@ const Profile = () => {
     return isValid;
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
     if (!validateFields()) {
@@ -66,6 +96,7 @@ const Profile = () => {
     }
 
     const updatedUser = {
+      id: Currentuserdata.id,
       username,
       email,
       phone,
@@ -74,25 +105,39 @@ const Profile = () => {
       gender,
     };
 
-    const credentialsArray = JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    const credentialMatch = credentialsArray.find((cred) => cred.username === userdata.username);
-    if (credentialMatch) {
-      credentialMatch.username = updatedUser.username;
-      credentialMatch.email = updatedUser.email;
-      credentialMatch.phone = updatedUser.phone;
-      credentialMatch.cnic = updatedUser.cnic;
-      credentialMatch.dateOfBirth = updatedUser.dateOfBirth;
-      credentialMatch.gender = updatedUser.gender;
-      localStorage.setItem("signupCredentials", JSON.stringify(credentialsArray));
-    }
+    try {
+      const response = await fetch("http://127.0.0.1:3000/api/user/updatedata", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accesstoken}`,
+        },
+        body: JSON.stringify(updatedUser),
+      });
 
-    dispatch(setUserData(updatedUser));
-    enqueueSnackbar("Profile updated successfully", { variant: "success" });
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentUserData(data);
+        setUsername(data.Username || "");
+        setEmail(data.Email || "");
+        setPhone(data.Phone || "");
+        setCnic(data.Cnic || "");
+        setDateOfBirth(data.Dob ? data.Dob.split("T")[0] : "");
+        setGender(data.Gender || "Male");
+
+        enqueueSnackbar("Profile updated successfully", { variant: "success" });
+      } else {
+        enqueueSnackbar("Failed to update profile", { variant: "error" });
+      }
+    } catch (error) {
+      console.log(error);
+      enqueueSnackbar("An error occurred while updating profile", { variant: "error" });
+    }
   };
 
   return (
     <>
-      <Navbar />
+      <Navbar Profile={currentUser} />
       <div className="mt-20 sm:mt-5 flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
           <h1 className="text-2xl font-roboto font-bold mb-6 text-gray-900 text-center">Profile</h1>

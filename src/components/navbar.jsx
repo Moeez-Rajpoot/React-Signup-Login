@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { clearUserData } from '../Redux/Reducers/UserData';
 import { LogOutState } from '../Redux/Reducers/Loginstate';
 
-const Navbar = () => {
+const Navbar = ({ Profile }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -63,13 +63,13 @@ const Navbar = () => {
               </li>
               <div className="relative flex justify-center mt-3 mb-2 sm:mt-5">
                 <img
-                  src={UserImage}
+                  src={Profile}
                   alt="User"
                   className=" h-9 w-9 rounded-full cursor-pointer"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 />
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-xl z-20">
+                  <div className="absolute right-0 top-16 py-2 w-48 bg-white rounded-md shadow-xl z-20">
                     <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Profile
                     </NavLink>
