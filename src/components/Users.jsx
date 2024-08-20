@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Navbar from "./navbar";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons/faCircleXmark";
 
 function Users() {
   const dispatch = useDispatch();
@@ -39,20 +41,16 @@ function Users() {
     const getCurrentUser = async () => {
       try {
         console.log("accesstoken:", accesstoken);
-        const response = await fetch(
-          "http://127.0.0.1:3000/api/user/current",
-          {
-            headers: {
-              Authorization: `Bearer ${accesstoken}`,
-            },
-          }
-        );
+        const response = await fetch("http://127.0.0.1:3000/api/user/current", {
+          headers: {
+            Authorization: `Bearer ${accesstoken}`,
+          },
+        });
         const data = await response.json();
         console.log("Current user  : ", data);
         setCurrentUser(data);
-        localStorage.setItem("Userdp", JSON.stringify(data.IPFSUrl));
+        localStorage.setItem("Userdp", JSON.stringify("https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/"+data.IPFSUrl));
         console.log("userdp : ", data.IPFSUrl);
-
       } catch (error) {
         console.log(error);
       }
@@ -72,7 +70,7 @@ function Users() {
 
   return (
     <>
-      <Navbar Profile={CurrentUser.IPFSUrl} />
+      <Navbar Profile={"https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/"+CurrentUser.IPFSUrl} />
       <div className="container mx-auto mt-24 sm:mt-28">
         <h2 className="flex justify-center text-2xl font-semibold mb-5">
           All Users
@@ -82,44 +80,63 @@ function Users() {
             <table className="min-w-full bg-white">
               <thead>
                 <tr>
-                  <th className="py-2 px-4 border-b">Username</th>
-                  <th className="py-2 px-4 border-b">Email</th>
-                  <th className="py-2 px-4 border-b">Phone</th>
-                  <th className="py-2 px-4 border-b">CNIC</th>
-                  <th className="py-2 px-4 border-b">ImgUrl</th>
-                  <th className="py-2 px-4 border-b">Password</th>
-                  <th className="py-2 px-4 border-b">Date of Birth</th>
-                  <th className="py-2 px-4 border-b">Gender</th>
-                  <th className="py-2 px-4 border-b">Actions</th>
+                  <th className="py-2 px-4 border-b text-center">Username</th>
+                  <th className="py-2 px-4 border-b text-center">Email</th>
+                  <th className="py-2 px-4 border-b text-center">Verified</th>
+
+                  <th className="py-2 px-4 border-b text-center">Phone</th>
+                  <th className="py-2 px-4 border-b text-center">CNIC</th>
+                  <th className="py-2 px-4 border-b text-center">
+                    Date of Birth
+                  </th>
+                  <th className="py-2 px-4 border-b text-center">Gender</th>
+                  <th className="py-2 px-4 border-b text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {usersData.map((user, index) => (
                   <tr key={index}>
-                    <td className="py-2 px-4 border-b">{user.Username}</td>
-                    <td className="py-2 px-4 border-b">{user.Email}</td>
-                    <td className="py-2 px-4 border-b">{user.Phone}</td>
-                    <td className="py-2 px-4 border-b">{user.Cnic}</td>
-                    <td className="py-2 px-4 border-b">
-                      <div className="truncate max-w-xs" title={user.IPFSUrl}>
-                        {user.IPFSUrl}
-                      </div>
+                    <td className="py-2 px-4 border-b text-center">
+                      {user.Username}
                     </td>
-                    <td className="py-2 px-4 border-b">
-                      <div className="truncate max-w-xs" title={user.Password}>
-                        {user.Password}
-                      </div>
+                    <td className="py-2 px-4 border-b text-center">
+                      {user.Email}
+                     
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-4 border-b text-center">
+                    {user.isVerified ? (
+                        <FontAwesomeIcon
+                          icon={faCircleCheck}
+                          className="text-green-600 hover:cursor-pointer"
+                          title="Verified"
+                        />
+                      ) : (
+                        <FontAwesomeIcon
+                          icon={faCircleXmark}
+                          className="text-red-600 hover:cursor-pointer"
+                          title="Not Verified"
+                        />
+                      )}
+                     
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {user.Phone}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {user.Cnic}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
                       {new Date(user.Dob).toLocaleDateString("en-GB")}
                     </td>
-                    <td className="py-2 px-4 border-b">{user.Gender}</td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-4 border-b text-center">
+                      {user.Gender}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
                       <button onClick={() => handleEdit(user)} className="mr-2">
-                        <FontAwesomeIcon icon={faEdit} />
+                        <FontAwesomeIcon icon={faEdit} title="Edit" />
                       </button>
                       <button onClick={() => handleDelete(user)}>
-                        <FontAwesomeIcon icon={faTrash} />
+                        <FontAwesomeIcon icon={faTrash} title="Delete" />
                       </button>
                     </td>
                   </tr>

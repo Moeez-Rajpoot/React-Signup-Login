@@ -31,78 +31,52 @@ function signUp() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("Male");
   const [image, setImage] = useState(null);
-  const [ipfsHash, setIpfsHash] = useState("");
   const [isReset, setIsReset] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [reTypePassword, setretypePassword] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   // const { setUserData } = useUser();
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleImageChange = async (e) => {
-    const image = e.target.files[0];
-    if (image) {
-      const formData = new FormData();
-      const blob = new Blob([image], { type: 'image/jpeg' });
-      formData.append('image', blob, image.name);
-  
-      console.log("Image phase 1:", blob);
-  
-      try {
-        const response = await fetch('http://127.0.0.1:3000/api/user/uploadimage', {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.message}`);
-        }
-  
-        const data = await response.json();
-        setIpfsHash("https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/"+data.ipfsHashes);
-        enqueueSnackbar("Image uploaded successfully", {
-          variant: "success",
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "right",
-          },
-        });
-      } catch (error) {
-        setShowError(true);
-        setErrorNo(20);
-        setErrorMessage('Failed to upload image to IPFS');
-      }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
-    // Validate all fields before proceeding
     if (!validateFields()) {
       return;
     }
 
-    const credentials = {
-      Username: username,
-      Password: password,
-      Email: email,
-      Phone: phone,
-      Cnic: cnic,
-      Dob: dateOfBirth,
-      Gender: gender,
-      IPFSUrl: ipfsHash,
-    };
+    const formData = new FormData();
+    formData.append("Username", username);
+    formData.append("Password", password);
+    formData.append("Email", email);
+    formData.append("Phone", phone);
+    formData.append("Cnic", cnic);
+    formData.append("Dob", dateOfBirth);
+    formData.append("Gender", gender);
 
-    console.log(credentials);
+    if (image) {
+      formData.append("image", image, image.name);
+    }
 
     try {
       const response = await fetch("http://127.0.0.1:3000/api/user/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -113,7 +87,6 @@ function signUp() {
       const data = await response.json();
       console.log("Success:", data);
 
-      // Clear form fields after successful submission
       setUsername("");
       setPassword("");
       setEmail("");
@@ -121,14 +94,13 @@ function signUp() {
       setCnic("");
       setDateOfBirth("");
       setGender("");
-      setIpfsHash("");
-
       setErrorMessage("");
       setShowError(false);
       setErrorNo("");
+      setIsLoading(false);
 
-      enqueueSnackbar("User Registered Successfully", {
-        variant: "success",
+      enqueueSnackbar("User Registered. Check Your Email for Verification.", {
+        variant: "info",
         anchorOrigin: {
           vertical: "bottom",
           horizontal: "right",
@@ -138,7 +110,7 @@ function signUp() {
       setIsSignUp(!isSignUp);
     } catch (error) {
       console.error("Error:", error);
-      enqueueSnackbar("Registration Failed", {
+      enqueueSnackbar(`${error}`, {
         variant: "error",
         anchorOrigin: {
           vertical: "bottom",
@@ -146,11 +118,6 @@ function signUp() {
         },
       });
     }
-
-    // Commented out the local storage logic
-    // let existingCredentials = JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    // existingCredentials.push(credentials);
-    // localStorage.setItem("signupCredentials", JSON.stringify(existingCredentials));
   };
 
   const validateFields = () => {
@@ -346,6 +313,7 @@ function signUp() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const credentials = {
       Email: email,
@@ -362,6 +330,7 @@ function signUp() {
       });
 
       if (!response.ok) {
+        setIsLoading(false);
         const errorData = await response.json();
         throw new Error(errorData.message || "Network response was not ok");
       }
@@ -370,6 +339,7 @@ function signUp() {
       console.log("Success:", data);
 
       if (data) {
+        setIsLoading(false);
         console.log("Credentials are " + JSON.stringify(data));
         dispatch(setUserData(data));
         dispatch(LoginState());
@@ -386,11 +356,13 @@ function signUp() {
         });
         navigate("/Users");
       } else {
+        setIsLoading(false);
         setShowError(true);
         setErrorNo(5);
         setErrorMessage("Invalid email or password");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error:", error);
       setShowError(true);
       setErrorNo(5);
@@ -401,85 +373,135 @@ function signUp() {
     setPassword("");
   };
 
-  const handleReset = (e) => {
+  const handleReset = async (e) => {
     e.preventDefault();
-    const credentialsArray =
-      JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    const credentialMatch = credentialsArray.find(
-      (cred) =>
-        cred.username === username &&
-        cred.email.toLowerCase() === email.toLowerCase() &&
-        cred.phone === phone &&
-        cred.cnic === cnic &&
-        cred.dateOfBirth === dateOfBirth &&
-        cred.gender === gender
-    );
-
-    if (credentialMatch) {
-      setIsChangePassword(true);
-      console.log("All credentials matched. Proceed to password change.");
-      setIsSignUp(false);
-      setErrorMessage("");
-      setShowError(false);
-      localStorage.setItem("resetUsername", username);
-    } else {
-      setShowError(true);
-      setErrorNo(5);
-      setErrorMessage("No matching credentials found.");
-    }
-  };
-
-  const handleretypePasswordCheck = (e) => {
-    setretypePassword(e.target.value);
-    if (password === e.target.value) {
-      setShowError(false);
-    } else {
-      setShowError(true);
-      setErrorNo(5);
-      setErrorMessage("Passwords do not match.");
-      return false;
-    }
-  };
-
-  const handlePasswordChange = (e) => {
-    e.preventDefault();
-    const credentialsArray =
-      JSON.parse(localStorage.getItem("signupCredentials")) || [];
-    const credentialMatch = credentialsArray.find(
-      (cred) => cred.username === localStorage.getItem("resetUsername")
-    );
-    if (password === reTypePassword) {
-      credentialMatch.password = password;
-      localStorage.setItem(
-        "signupCredentials",
-        JSON.stringify(credentialsArray)
-      );
-      setIsReset(false);
-      setIsChangePassword(false);
-      setUsername("");
-      setPassword("");
-      setEmail("");
-      setPhone("");
-      setCnic("");
-      setDateOfBirth("");
-      setGender("");
-      setretypePassword("");
-      setShowError(false);
-      setErrorMessage("");
-      enqueueSnackbar("Password Changed Sucessfully", {
-        variant: "success",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "right",
+    setIsLoading(true);
+  
+    try {
+      const response = await fetch('http://127.0.0.1:3000/api/user/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ email }),
       });
-      navigate("/");
-    } else {
-      setShowError(true);
-      setErrorNo(5);
-      setErrorMessage("Passwords do not match.");
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setIsLoading(false);
+        enqueueSnackbar(data.message || 'Password reset link sent successfully.', {
+          variant: 'success',
+          anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right",
+                  },
+        });
+        setUsername("");
+        setIsSignUp(! isSignUp);
+        setIsReset(false);
+        
+      } else {
+        setIsLoading(false);
+        enqueueSnackbar(data.message || 'An error occurred. Please try again.', {
+          variant: 'error',
+          anchorOrigin: {
+                    vertical: "bottom",
+                    horizontal: "right",
+          }
+        });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar(error.message || 'An error occurred. Please try again.', {
+        variant: 'error',
+        anchorOrigin: {
+                  vertical: "bottom",
+                  horizontal: "right",
+        }
+      });
     }
   };
+
+  // const handleReset = (e) => {
+  //   e.preventDefault();
+  //   // const credentialsArray =
+  //   //   JSON.parse(localStorage.getItem("signupCredentials")) || [];
+  //   // const credentialMatch = credentialsArray.find(
+  //   //   (cred) =>
+  //   //     cred.username === username &&
+  //   //     cred.email.toLowerCase() === email.toLowerCase() &&
+  //   //     cred.phone === phone &&
+  //   //     cred.cnic === cnic &&
+  //   //     cred.dateOfBirth === dateOfBirth &&
+  //   //     cred.gender === gender
+  //   // );
+
+  //   // if (credentialMatch) {
+  //   //   setIsChangePassword(true);
+  //   //   console.log("All credentials matched. Proceed to password change.");
+  //   //   setIsSignUp(false);
+  //   //   setErrorMessage("");
+  //   //   setShowError(false);
+  //   //   localStorage.setItem("resetUsername", username);
+  //   // } else {
+  //   //   setShowError(true);
+  //   //   setErrorNo(5);
+  //   //   setErrorMessage("No matching credentials found.");
+  //   // }
+  // };
+
+  // const handleretypePasswordCheck = (e) => {
+  //   setretypePassword(e.target.value);
+  //   if (password === e.target.value) {
+  //     setShowError(false);
+  //   } else {
+  //     setShowError(true);
+  //     setErrorNo(5);
+  //     setErrorMessage("Passwords do not match.");
+  //     return false;
+  //   }
+  // };
+
+  // const handlePasswordChange = (e) => {
+  //   e.preventDefault();
+  //   const credentialsArray =
+  //     JSON.parse(localStorage.getItem("signupCredentials")) || [];
+  //   const credentialMatch = credentialsArray.find(
+  //     (cred) => cred.username === localStorage.getItem("resetUsername")
+  //   );
+  //   if (password === reTypePassword) {
+  //     credentialMatch.password = password;
+  //     localStorage.setItem(
+  //       "signupCredentials",
+  //       JSON.stringify(credentialsArray)
+  //     );
+  //     setIsReset(false);
+  //     setIsChangePassword(false);
+  //     setUsername("");
+  //     setPassword("");
+  //     setEmail("");
+  //     setPhone("");
+  //     setCnic("");
+  //     setDateOfBirth("");
+  //     setGender("");
+  //     setretypePassword("");
+  //     setShowError(false);
+  //     setErrorMessage("");
+  //     enqueueSnackbar("Password Changed Sucessfully", {
+  //       variant: "success",
+  //       anchorOrigin: {
+  //         vertical: "bottom",
+  //         horizontal: "right",
+  //       },
+  //     });
+  //     navigate("/");
+  //   } else {
+  //     setShowError(true);
+  //     setErrorNo(5);
+  //     setErrorMessage("Passwords do not match.");
+  //   }
+  // };
 
   return (
     <>
@@ -550,23 +572,33 @@ function signUp() {
                 : "w-full h-1/2 flex flex-col justify-center items-center"
             }
             onSubmit={
-              isChangePassword
-                ? handlePasswordChange
-                : isReset
+               isReset
                 ? handleReset
                 : isSignUp
                 ? handleSubmit
                 : handleLogin
             }
           >
-          {isSignUp && !isReset && (
-            <div className="custom-input-field">
-            <FontAwesomeIcon icon={faIdCard} className="ml-2" />
-            <input type="file" onChange={handleImageChange} required />
-          </div>
-          )}
-     
-            {isSignUp && (
+            {isSignUp && !isReset && (
+              <div className="custom-input-field">
+                <FontAwesomeIcon icon={faIdCard} className="ml-2" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  required
+                />
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="ml-2 max-h-10 rounded-full"
+                  />
+                )}
+              </div>
+            )}
+
+            {isSignUp && !isReset && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faUser} className="ml-2" />
                 <input
@@ -585,9 +617,19 @@ function signUp() {
                 {errorMessage}
               </p>
             )}
+            {isReset && (
+              <>
+              <p className="text-lg text-center w-full">
+                Enter your credentials to reset your password.
+                </p>
+                <p className="text-sm text-green-600 text-center w-full mb-20">
+                Recover Email will be Send to your Email Adddress.
+                </p>
+                </>
+                )}
 
             {!isChangePassword && (
-              <div className="custom-input-field">
+              <div className={`custom-input-field ${isReset && "-mt-10"}`}>
                 <FontAwesomeIcon icon={faEnvelope} className="ml-2" />
                 <input
                   onChange={(e) => setEmail(e.target.value)}
@@ -618,7 +660,7 @@ function signUp() {
                 />
               </div>
             )}
-
+{/* 
             {isChangePassword && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faKey} className="ml-2" />
@@ -636,9 +678,9 @@ function signUp() {
                   required
                 />
               </div>
-            )}
+            )} */}
 
-            {isChangePassword && isReset && (
+            {/* {isChangePassword && isReset && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faKey} className="ml-2" />
                 <input
@@ -655,9 +697,9 @@ function signUp() {
                   required
                 />
               </div>
-            )}
+            )} */}
 
-            {showError && errorno === 2 && (
+            {/* {showError && errorno === 2 && (
               <p
                 className={
                   msgcolor === 1
@@ -669,9 +711,9 @@ function signUp() {
               >
                 {errorMessage}
               </p>
-            )}
+            )} */}
 
-            {isSignUp && (
+            {isSignUp && !isReset && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faPhone} className="ml-2" />
                 <input
@@ -691,7 +733,7 @@ function signUp() {
               </p>
             )}
 
-            {isSignUp && (
+            {isSignUp && !isReset && (
               <div className="custom-input-field">
                 <FontAwesomeIcon icon={faIdCard} className="ml-2" />
                 <input
@@ -711,7 +753,7 @@ function signUp() {
               </p>
             )}
 
-            {isSignUp && (
+            {isSignUp && !isReset && (
               <div className="custom-input-field">
                 <label
                   className="text-nowrap pl-2 font-semibold"
@@ -731,7 +773,7 @@ function signUp() {
               </div>
             )}
 
-            {isSignUp && (
+            {isSignUp && !isReset && (
               <div className="custom-input-field flex ml-1 gap-1 mt-3 mb-2.5 w-3/4 rounded-md font-sans">
                 <label
                   className="text-nowrap pl-2 font-semibold flex mb-2"
@@ -752,19 +794,43 @@ function signUp() {
               </div>
             )}
 
-           
-            
-
             <div className="flex justify-center items-center w-full">
               <p className="text-red-500 text-xs text-center pl-0 sm:pl-2 w-3/4">
                 {showError && errorno === 5 && errorMessage}
               </p>
             </div>
             <button
-              className="rounded-full border-2 text-white font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer md:mt-0 lg:mt-2"
+              className="rounded-full border-2 text-white  font-semibold border-[#0000004a] bg-[#01bf95] px-12 py-3 text-xs font-roboto hover:bg-white hover:text-black hover:border-black transition duration-300 ease-in-out cursor-pointer md:mt-0 lg:mt-2"
               type="submit"
             >
-              {isReset ? "Reset Password" : isSignUp ? "Sign Up" : "Sign In"}
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-5 w-5text-black"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              ) : isReset ? (
+                "Reset Password"
+              ) : isSignUp ? (
+                "Sign Up"
+              ) : (
+                "Sign In"
+              )}
             </button>
             {!isSignUp && !isReset && (
               <div className="flex justify-center items-center w-full mt-2">
