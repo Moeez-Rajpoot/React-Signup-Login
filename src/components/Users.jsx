@@ -5,16 +5,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons/faCircleXmark";
+import ProfileForm from "../components/form";
 
 function Users() {
   const dispatch = useDispatch();
   const [CurrentUser, setCurrentUser] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const IPFSUrl = useSelector((state) => state.UserProfile?.IPFSUrl || ""); // Provide a default value
   const accesstoken = useSelector(
     (state) => state.UserData.userData.accesstoken
   );
   const [usersData, setUsersData] = useState([]);
+  const [EditUserData, setEditUserData] = useState();
+  const [dropbox , setDropbox] = useState(false);
 
   useEffect(() => {
     const getUsers = async () => {
@@ -38,7 +40,7 @@ function Users() {
       }
     };
     getUsers();
-  }, [accesstoken]);
+  },[accesstoken , dropbox]);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -52,7 +54,13 @@ function Users() {
         const data = await response.json();
         console.log("Current user  : ", data);
         setCurrentUser(data);
-        localStorage.setItem("Userdp", JSON.stringify("https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/"+data.IPFSUrl));
+        localStorage.setItem(
+          "Userdp",
+          JSON.stringify(
+            "https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/" +
+              data.IPFSUrl
+          )
+        );
         console.log("userdp : ", data.IPFSUrl);
       } catch (error) {
         console.log(error);
@@ -62,7 +70,9 @@ function Users() {
   }, [accesstoken, dispatch]);
 
   const handleEdit = (user) => {
-    // Implement edit functionality here
+    setEditUserData(user);
+    setDropbox(true);
+
     console.log("Edit user:", user);
   };
 
@@ -73,7 +83,21 @@ function Users() {
 
   return (
     <>
-      <Navbar Profile={"https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/"+CurrentUser.IPFSUrl} />
+      <Navbar
+        Profile={
+          "https://salmon-tremendous-pike-190.mypinata.cloud/ipfs/" +
+          CurrentUser.IPFSUrl
+        }
+      />
+      {dropbox && (
+        <div className="absolute backdrop-blur-sm top-0 right-0 w-full h-screen">
+
+        <div className="absolute top-[20%] bg-white border-b border-2 rounded-lg z-30 right-[25%] h-fit w-[50%] p-5">
+          <h1 className="w-full text-3xl text-center font-mono" >Update User</h1>
+          <ProfileForm accesstoken={accesstoken} drop={true} currentUserData={EditUserData} setDropbox={setDropbox} />
+        </div>
+        </div>
+        )}
       <div className="container mx-auto mt-24 sm:mt-28">
         <h2 className="flex justify-center text-2xl font-semibold mb-5">
           All Users
