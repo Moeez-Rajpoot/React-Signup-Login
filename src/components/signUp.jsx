@@ -390,6 +390,7 @@ function signUp() {
   
       if (response.ok) {
         setIsLoading(false);
+        setEmail("");
         enqueueSnackbar(data.message || 'Password reset link sent successfully.', {
           variant: 'success',
           anchorOrigin: {
@@ -397,7 +398,7 @@ function signUp() {
                     horizontal: "right",
                   },
         });
-        setUsername("");
+        setEmail("");
         setIsSignUp(! isSignUp);
         setIsReset(false);
         
@@ -533,6 +534,7 @@ function signUp() {
               onClick={() => {
                 setUsername("");
                 setPassword("");
+                setEmail("");
                 setIsSignUp(!isSignUp);
                 setIsReset(false);
                 setIsChangePassword(false);
@@ -699,7 +701,7 @@ function signUp() {
               </div>
             )} */}
 
-            {/* {showError && errorno === 2 && (
+            {showError && errorno === 2 && (
               <p
                 className={
                   msgcolor === 1
@@ -711,7 +713,7 @@ function signUp() {
               >
                 {errorMessage}
               </p>
-            )} */}
+            )}
 
             {isSignUp && !isReset && (
               <div className="custom-input-field">
