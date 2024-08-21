@@ -619,7 +619,7 @@ function signUp() {
             )}
             {isReset && (
               <>
-              <p className="text-lg text-center w-full">
+              <p className="text-lg text-center -mt-20 w-full">
                 Enter your credentials to reset your password.
                 </p>
                 <p className="text-sm text-green-600 text-center w-full mb-20">
